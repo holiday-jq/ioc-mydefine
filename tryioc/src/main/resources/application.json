@@ -1,0 +1,20 @@
+[
+  {
+    "name":"person",
+    "className":"com.holiday.matcloud.object.Person"
+/**    "constructorArgs": [
+       {
+          "index": "0",
+          "ref": "water"
+       }
+    ]  **/
+  },
+  {
+    "name":"rice",
+    "className":"com.holiday.matcloud.object.Rice"
+  },
+  {
+    "name":"water",
+    "className":"com.holiday.matcloud.object.Water"
+  }
+]
