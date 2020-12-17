@@ -1,0 +1,4 @@
+java.sql.Driver=\
+  com.mysql.jdbc.Driver,\
+  oracle.jdbc.driver.OracleDriver,\
+  org.h2.Driver
