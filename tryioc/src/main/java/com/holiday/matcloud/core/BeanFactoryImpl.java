@@ -50,7 +50,7 @@ public class BeanFactoryImpl implements BeanFactory{
 		
 		if(bean != null) {
 			populatebean(bean);
-		    // 检查properties中是否有定义代理增强
+		    //检查properties中是否有定义代理增强
 		    String proxyAdvisorClassName = proxyProp.getProperty(name + ".proxy.class");
 			if (proxyAdvisorClassName != null && proxyAdvisorClassName.trim().length() > 0) {
 			    Class<?> proxyAdvisorClass = Class.forName(proxyAdvisorClassName);
