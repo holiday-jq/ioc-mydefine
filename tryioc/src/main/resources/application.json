@@ -16,5 +16,9 @@
   {
     "name":"water",
     "className":"com.holiday.matcloud.object.Water"
+  },
+  {
+    "name": "demoService",
+    "className":"com.holiday.matcloud.object.DemoServiceImpl"  
   }
 ]

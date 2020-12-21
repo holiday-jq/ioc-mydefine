@@ -1,10 +1,15 @@
 package com.holiday.matcloud.core;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +27,17 @@ public class BeanFactoryImpl implements BeanFactory{
 
     private static final Set<String> beanNameSet = Collections.synchronizedSet(new HashSet<>());
     
+    public final Properties proxyProp;
+    
+    public BeanFactoryImpl () {
+	    proxyProp = new Properties();
+	    try {
+	        proxyProp.load(this.getClass().getClassLoader().getResourceAsStream("proxy.properties"));
+	    } catch (IOException e) {
+	        throw new ExceptionInInitializerError("DemoServlet11 initialize error, cause: " + e.getMessage());
+	    }
+    }
+    
 	public Object getBean(String name) throws Exception {
 		// TODO Auto-generated method stub
 		Object bean = beanMap.get(name);
@@ -34,6 +50,19 @@ public class BeanFactoryImpl implements BeanFactory{
 		
 		if(bean != null) {
 			populatebean(bean);
+		    // 检查properties中是否有定义代理增强
+		  String proxyAdvisorClassName = proxyProp.getProperty(name + ".proxy.class");
+			if (proxyAdvisorClassName != null && proxyAdvisorClassName.trim().length() > 0) {
+			    Class<?> proxyAdvisorClass = Class.forName(proxyAdvisorClassName);
+		        String[] methods = proxyProp.getProperty(name + ".proxy.methods").split(",");
+
+			    InvocationHandler proxyHandler = (InvocationHandler) proxyAdvisorClass
+		                .getConstructors()[0].newInstance(bean, Arrays.asList(methods));
+			    // 动态代理创建对象
+		        Object proxy = Proxy.newProxyInstance(bean.getClass().getClassLoader(),
+		                bean.getClass().getInterfaces(), proxyHandler);
+		        bean = proxy;
+			}
 			beanMap.put(name, bean);
 		}
 				
@@ -50,6 +79,11 @@ public class BeanFactoryImpl implements BeanFactory{
 		Class clz = ClassUtils.loadClass(beanClassName);
 		if (clz == null) {
             throw new Exception("can not find bean by beanName");
+		}
+		String proxyAdvisorClassName = proxyProp.getProperty(beanDefinition.getName() + ".proxy.class");
+		if (proxyAdvisorClassName != null && proxyAdvisorClassName.trim().length() > 0) {
+		    Class<?> beanClazz = Class.forName(beanClassName);
+            return beanClazz.newInstance();              
 		}
 		List<ConstructorArg> constructorArgs = beanDefinition.getConstructorArgs();
 		if (constructorArgs != null && !constructorArgs.isEmpty()) {
